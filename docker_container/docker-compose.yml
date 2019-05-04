@@ -1,0 +1,33 @@
+
+version: "2.0"
+services:
+  web:
+    build: ${PWD}/bin/webserver
+    volumes:
+      - ${PWD}/www/:/var/www/html/
+    ports:
+      - "80:80"
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: 1234
+      MYSQL_ROOT_PASSWORD: 1234
+    ports:
+     - "3306:3306"
+    stdin_open: true
+    volumes:
+     - ${PWD}/mysql/:/var/lib/mysql    
+    networks:
+     - backend 
+  node:
+    image: node
+    volumes:
+     - ${PWD}/root:/root
+    ports:
+     - "3000:3000"
+    command: bash -c "cd /root/ && npm install && npm install nodemon -g && nodemon app.js"
+networks:
+  backend:
+
