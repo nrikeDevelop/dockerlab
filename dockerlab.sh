@@ -137,7 +137,7 @@ pass :    '$PASSWORD_MYSQL'<br>
 </html>
 ' >> ${PWD}/$NAME_PROJECT"_container"/www/index.html
 
-  ${PWD}/dockerlab.sh --start
+  #${PWD}/dockerlab.sh --start
 
   echo ""
   echo ""
