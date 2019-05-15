@@ -31,6 +31,15 @@ function die(){
 }
 
 function renameProject(){
+  cd ${PWD}
+  OLD_NAME=$(ls | grep _container)
+
+  if [ $OLD_NAME == $1_container ];
+  then
+    echo_e red "[-] cannot the same name, use other"
+    die
+  fi
+
   mv $(ls | grep _container) $1_container
 }
 
@@ -57,20 +66,47 @@ function normalize_config(){
 
 #ADD PORTS, AND NEW CONFIGURATIONS TO /BIN/.. AND DOCKER-COMPOSE.YML
 function config(){
-    echo_e yellow "[+] Configure parameters"
-    echo ""
-    echo -ne "Name of project       (default: docker_container) : "; NAME_PROJECT=$(normalize_config "docker"); renameProject $NAME_PROJECT 
-    echo -ne "Redirect port Apache  (default: 80) : "   ; PORT_APACHE=$(normalize_config "80")
-    echo -ne "Redirect port Mysql   (default: 3306) : " ; PORT_MYSQL=$(normalize_config "3306")
-    echo -ne "User Mysql            (default: admin) : "; USER_MYSQL=$(normalize_config "admin")
-    echo -ne "Password Mysql        (default: 1234) : " ; PASSWORD_MYSQL=$(normalize_config "1234")
-    echo -ne "Root Password Mysql   (default: 1234) : " ; PASSWORD_ROOT_MYSQL=$(normalize_config "1234")
-    echo -ne "Redirect port Node    (default: 3000) : " ; PORT_NODE=$(normalize_config "3000")
-    echo ""
-    echo_e yellow "[+] Configuring docker-compose.yml"
+
+  cd ${PWD}
+  if [ ! $(ls | grep container) ]
+	then 
+		mkdir -p ${PWD}/docker_container
+    touch ${PWD}/docker_container/docker-compose.yml 
+    mkdir -p ${PWD}/docker_container/root
+    mkdir -p ${PWD}/docker_container/www
+    mkdir -p ${PWD}/docker_container/bin/webserver
+echo '
+#Container needs driver to conect mysql
+FROM php:7.2.2-apache
+RUN docker-php-ext-install mysqli 
+RUN docker-php-ext-enable mysqli
+RUN a2enmod rewrite
+RUN  apachectl restart
+
+#Add other programs that you need, ex: 
+RUN apt-get update
+RUN apt-get install nano
+'>>${PWD}/docker_container/bin/webserver/Dockerfile
+  fi
+
+  echo_e yellow "[+] Configure parameters"
+  echo ""
+  echo -ne "Name of project       (default: docker_container,use other) : "; NAME_PROJECT=$(normalize_config "docker"); renameProject $NAME_PROJECT 
+  echo -ne "Redirect port Apache  (default: 80) : "   ; PORT_APACHE=$(normalize_config "80")
+  echo -ne "Redirect port Mysql   (default: 3306) : " ; PORT_MYSQL=$(normalize_config "3306")
+  echo -ne "User Mysql            (default: admin) : "; USER_MYSQL=$(normalize_config "admin")
+  echo -ne "Password Mysql        (default: 1234) : " ; PASSWORD_MYSQL=$(normalize_config "1234")
+  echo -ne "Root Password Mysql   (default: 1234) : " ; PASSWORD_ROOT_MYSQL=$(normalize_config "1234")
+  echo -ne "Redirect port Node    (default: 3000) : " ; PORT_NODE=$(normalize_config "3000")
+  echo ""
+  echo_e yellow "[+] Configuring docker-compose.yml"
 
 
-rm ${PWD}/$NAME_PROJECT"_container"/docker-compose.yml
+  if [ ! -d "${PWD}/docker_container" ]
+	then 
+    rm ${PWD}/$NAME_PROJECT"_container"/docker-compose.yml
+  fi
+
 echo '
 version: "2.0"
 services:

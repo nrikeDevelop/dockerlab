@@ -6,7 +6,7 @@ services:
     volumes:
       - ${PWD}/www/:/var/www/html/
     ports:
-      - "80:80"
+      - "8084:80"
   db:
     image: mariadb
     restart: always
@@ -15,7 +15,7 @@ services:
       MYSQL_PASSWORD: 1234
       MYSQL_ROOT_PASSWORD: 1234
     ports:
-     - "3306:3306"
+     - "4000:3306"
     stdin_open: true
     volumes:
      - ${PWD}/mysql/:/var/lib/mysql    
