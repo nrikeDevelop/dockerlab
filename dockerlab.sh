@@ -149,6 +149,17 @@ pass :    '$PASSWORD_MYSQL'<br>
 
 }
 
+function install(){
+  if [ -f "/usr/sbin/dockerlab" ]
+	then 
+		rm -r /usr/sbin/dockerlab
+		cp ./dockerlab.sh /usr/sbin/dockerlab
+	else
+		cp ./dockerlab.sh /usr/sbin/dockerlab
+	fi	
+	echo_e green "[+] dockerlab installed in /usr/sbin like dockerlab "
+}
+
 #MAIN
 
 if [ "$(id -u)" != "0" ]; then
@@ -167,9 +178,12 @@ case $1 in
     "--config")      
         config
         die ;;
+    "--install")      
+        install
+        die ;;
      *)
           echo "DockerLab"
           echo "This script make a workspace to schedule in apache-php/node and mysql"
-          echo "dockerlab ( --start | --stop | --config )"
+          echo "dockerlab ( --start | --stop | --config | --install)"
           ;;
 esac
